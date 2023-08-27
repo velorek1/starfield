@@ -1,6 +1,8 @@
-# starfield
-A simple SDL2 starfield animation
-A portion of C code for an SDL-based game engine that generates a starfield simulation. 
+# Starfield Animation with SDL2
+A simple SDL2 starfield animation.
+Most of the ideas where taken from this wonderful classic:
+http://web.archive.org/web/20160114180422/http://freespace.virgin.net/hugo.elias/graphics/x_stars.htm
+
 The code initializes an SDL window, handles user input, and renders a starfield with a streak effect.
 
 # To compile:
