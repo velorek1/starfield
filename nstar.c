@@ -77,6 +77,7 @@ void pixel(int x, int y, int c, int alpha);
 void clearBackground();
 void Main_Loop();
 void UpdateGame();
+void message();
 
 //-> Entry Point
 
@@ -95,6 +96,7 @@ int main()
 	time_t t;
 	srand((unsigned) time(&t));
 	InitVideo();
+	message();
 	newGame();
 	Main_Loop();
 	CleanMemory();
@@ -105,7 +107,7 @@ BOOL InitVideo()
 {
 	SDL_Init(SDL_INIT_VIDEO);
 	win1 =
-	    SDL_CreateWindow("STARS Z-Demo v0.1", 50, 50, SW, SH,
+	    SDL_CreateWindow("STARS Z-Demo v0.1", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SW, SH,
 			     SDL_WINDOW_SHOWN);
 	ren1 = SDL_CreateRenderer(win1, -1, 0);
 	//SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, 0);
@@ -179,12 +181,14 @@ void KeysDown()
 	if (Key(SDLK_m) == FALSE) {
 		K.m = 0;
 	}
+	
 	if (Key(SDLK_COMMA) == FALSE) {
 		K.sr = 0;
 	}
 	if (Key(SDLK_PERIOD) == FALSE) {
 		K.sl = 0;
 	}
+	
 }
 
 void HandleKey(long Sym, BOOL Down)
@@ -291,16 +295,37 @@ void newGame()
 	initStars();
 }
 
+void message(){
+   // Blue message
+    
+    // Reset color to default
+    printf("\033[0m");
+    
+    // Red message
+    printf("\033[1;31m[nstar]\033[0m coded by\033[90m velorek\n");
+    printf("\033[1;97mKeys:\n");
+    printf("\033[0m");
+    printf("\033[1;94mw \033[0m increase speed\n");
+    printf("\033[1;94md \033[0m decrease speed\n");
+    printf("\033[1;94ma \033[0m toggle streak\n");
+    printf("\033[1;94mm \033[0m toggle fullscreen\n");
+    printf("\033[1;94mESC \033[0m quit\n");
+    
+    // Reset color to default
+    printf("\033[0m");
+
+}
+
 void UpdateGame()
 {
 	if (K.w == 1) {
 		SPEED++;
-		printf("%f\n", SPEED);
+		//printf("%f\n", SPEED);
 		K.w == 0;
 	}
 	if (K.s == 1) {
 		SPEED--;
-		printf("%f\n", SPEED);
+		//printf("%f\n", SPEED);
 		K.s == 0;
 	}
 	if (K.m == 1) {
@@ -371,8 +396,8 @@ void draw3D()
 			draw_line(ren1, x, y, px[i], py[i], 255, 255, 255, b);
 			//draw_line(ren1,px[i],py[i],x,y,255,255,255,100);
 
-			printf("%d:%d:%d:%d:%f:%d\n", x, y, px[i], py[i],
-			       length, b);
+			//printf("%d:%d:%d:%d:%f:%d\n", x, y, px[i], py[i],
+			   //    length, b);
 		}
 		px_old[i] = px[i];
 		py_old[i] = py[i];
