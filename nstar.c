@@ -24,16 +24,11 @@
 typedef short BOOL;
 
 typedef struct {
-	int w, s, a, d;		// increase spead, decrease, activate streak
+	int w, s, a, d, r;	// increase spead, decrease, activate streak, show msg, reset speed
 	int m;			// fullscreen
 } keys;
 keys K;
 
-typedef struct {
-	float cos[360];		//Save sin cos in values 0-360 degrees
-	float sin[360];
-} math;
-math M;
 
 float sx[MAX_STARS], sy[MAX_STARS], sz[MAX_STARS];
 float szv[MAX_STARS];
@@ -44,7 +39,7 @@ long KeyState[MAX_KEY];
 BOOL Running = TRUE;
 BOOL keypressed = FALSE;
 BOOL streak = FALSE;
-float SPEED = 1.0;
+float SPEED = 5.0;
 time_t t;
 int x = 0, y = 0;
 int px[MAX_STARS], py[MAX_STARS];
@@ -140,6 +135,9 @@ void KeysUp()
 	if (Key(SDLK_d)) {
 		K.d = 1;
 	}
+	if (Key(SDLK_r)) {
+		K.r = 1;
+	}
 	if (Key(SDLK_m)) {
 		K.m = 1;
 	}
@@ -157,6 +155,9 @@ void KeysDown()
 		K.a = 0;
 	}
 	if (Key(SDLK_d) == FALSE) {
+		K.d = 0;
+	}
+	if (Key(SDLK_r) == FALSE) {
 		K.d = 0;
 	}
 	if (Key(SDLK_m) == FALSE) {
@@ -204,7 +205,7 @@ float rand_float(float min, float max)
 void pixel(int x, int y, int c, int alpha)	//draw a pixel at x/y with rgb
 {
 	int rgb[3];
-	SDL_Point *newpoint;
+	SDL_Point *newpoint=NULL;
 
 	if (c == 0) {
 		rgb[0] = 0;
@@ -223,6 +224,8 @@ void pixel(int x, int y, int c, int alpha)	//draw a pixel at x/y with rgb
 	SDL_SetRenderDrawColor(ren1, rgb[0], rgb[1], rgb[2], alpha);
 	SDL_RenderDrawPoints(ren1, newpoint, 1);
 	free(newpoint);		// free memory
+	newpoint = NULL;
+				
 }
 
 void draw_line(SDL_Renderer * renderer, int x1, int y1, int x2, int y2, int r,
@@ -234,7 +237,7 @@ void draw_line(SDL_Renderer * renderer, int x1, int y1, int x2, int y2, int r,
 
 void clearBackground()
 {
-	int x, y;
+	int x=0, y=0;
 	for (y = 0; y < SH; y++) {
 		for (x = 0; x < SW; x++) {
 			pixel(x, y, 0, 255);
@@ -271,9 +274,10 @@ void message(){
     printf("\033[0m");
     printf("\033[1;94mw \033[0m increase speed\n");
     printf("\033[1;94ms \033[0m decrease speed\n");
+    printf("\033[1;94mr \033[0m reset speed\n");
     printf("\033[1;94ma \033[0m toggle streak\n");
     printf("\033[1;94mm \033[0m toggle fullscreen\n");
-    printf("\033[1;94md \033[0m show SPEED\n");
+    printf("\033[1;94md \033[0m show help message\n");
     printf("\033[1;94mESC \033[0m quit\n");
     
     // Reset color to default
@@ -284,22 +288,32 @@ void message(){
 void UpdateGame()
 {
 	if (K.w == 1) {
+		printf("Current SPEED : %f\n",SPEED);
 		SPEED++;
-		K.w == 0;
+		K.w = 0;
 	}
 	if (K.s == 1) {
+		printf("Current SPEED : %f\n",SPEED);
 		SPEED--;
-		K.s == 0;
+		K.s = 0;
 	}
 	if (K.m == 1) {
 		ToggleFullscreen(win1);
-		K.m == 0;
+		K.m = 0;
 	}
 	if (K.d == 1) {
 		//Show message
-		K.d == 0;
-		printf("Current SPEED : %f\n",SPEED);
+		K.d = 0;
+		message();
 	}
+
+	if (K.r == 1) {
+		//Reset Speed
+		SPEED = 0.1;
+		printf("Current SPEED : %f\n",SPEED);
+		K.r = 0;
+	}
+
 
 	if (K.a == 1) {
 		if (streak)
@@ -313,9 +327,9 @@ void UpdateGame()
 
 void draw3D()
 {
-	int b;
-	int xd = 0, yd = 0;
-	float length = 0;
+	int b=0;
+	float length=0.0;
+	int xd=0,yd=0;
 	clearBackground();
 	for (int i = 0; i < MAX_STARS; i++) {
 		sz[i] = (sz[i] - szv[i]) - SPEED;
@@ -324,8 +338,8 @@ void draw3D()
 		b = 255 - (sz[i] * (255. / 1000.));
 		pixel(px[i], py[i], 1, b);
 
-		if ((sz[i] < 1) || (px[i] < 0 && px[i] > SW)
-		    && (py[i] < 0 && py[i] > SH)) {
+		if ((sz[i] < 1) || ((px[i] < 0 && px[i] > SW) && (py[i] < 0 && py[i] > SH)))
+		{
 			sx[i] = rand_num(-500, 500);
 			sy[i] = rand_num(-500, 500);
 			sz[i] = rand_num(100, 1000);
